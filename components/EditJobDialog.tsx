@@ -16,10 +16,19 @@ import { Button } from "./ui/button";
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "./ui/dialog";
 import { Edit, LoaderCircleIcon } from "lucide-react";
 import { toast } from "sonner";
+import { JobStatus } from "@prisma/client";
 
 type Props = {
   jobId: number;
   onUpdated: (job: any) => void;
+};
+
+type FormState = {
+  company: string;
+  role: string;
+  status: JobStatus;
+  appliedDate: string;
+  notes: string;
 };
 
 export default function EditJobDialog({ jobId, onUpdated }: Props) {
@@ -28,13 +37,13 @@ export default function EditJobDialog({ jobId, onUpdated }: Props) {
   const [submitting, setSubmitting] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
-  const [form, setForm] = useState({
-    company: "",
-    role: "",
-    status: "",
-    appliedDate: "",
-    notes: "",
-  });
+  const [form, setForm] = useState<FormState>({
+  company: "",
+  role: "",
+  status: JobStatus.APPLIED,
+  appliedDate: "",
+  notes: "",
+});
 
   useEffect(() => {
     async function loadJob() {
@@ -59,6 +68,8 @@ export default function EditJobDialog({ jobId, onUpdated }: Props) {
 
     loadJob();
   }, [jobId]);
+
+  
 
   function handleChange(e: any) {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -129,9 +140,11 @@ export default function EditJobDialog({ jobId, onUpdated }: Props) {
           <div className="space-y-4">
             <Label>Status</Label>
             <Select
-              value={form.status}
-              onValueChange={(v) => setForm({ ...form, status: v })}
-            >
+  value={form.status}
+  onValueChange={(v) =>
+    setForm({ ...form, status: v as JobStatus })
+  }
+>
               <SelectTrigger className="bg-zinc-800 border-zinc-700">
                 <SelectValue />
               </SelectTrigger>

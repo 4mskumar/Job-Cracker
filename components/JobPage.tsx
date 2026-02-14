@@ -32,6 +32,7 @@ import EditJobDialog from "./EditJobDialog";
 import { Skeleton } from "./ui/skeleton";
 import { Badge } from "./ui/badge";
 import { toast } from "sonner";
+import { JobStatus } from "@prisma/client";
 
 const statusColors: any = {
   APPLIED: "bg-blue-500/20 border-blue-800/60 text-blue-500",
@@ -50,10 +51,11 @@ type Job = {
   id: number;
   company: string;
   role: string;
-  status: string;
+  status: JobStatus;
   appliedDate: string;
   notes?: string;
 };
+
 
 function mapJob(job: any): Job {
   return {
@@ -61,6 +63,14 @@ function mapJob(job: any): Job {
     appliedDate: new Date(job.appliedDate).toISOString(),
   };
 }
+
+type FormState = {
+  company: string;
+  role: string;
+  status: JobStatus;
+  appliedDate: string;
+  notes: string;
+};
 
 export default function JobsPage() {
   const [jobs, setJobs] = useState<Job[]>([]);
@@ -71,10 +81,10 @@ export default function JobsPage() {
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<FormState>({
     company: "",
     role: "",
-    status: "",
+    status: JobStatus.APPLIED,
     appliedDate: "",
     notes: "",
   });
@@ -89,8 +99,13 @@ export default function JobsPage() {
     try {
       setSubmitting(true);
 
-      const newJob = await createJob(form);
-      if (!newJob) throw new Error("Failed");
+      const newJob = await createJob({
+        company: form.company,
+        role: form.role,
+        status: form.status,
+        appliedDate: new Date(form.appliedDate),
+        notes: form.notes,
+      });
 
       const mappedJob = mapJob(newJob);
 
@@ -106,11 +121,12 @@ export default function JobsPage() {
       setForm({
         company: "",
         role: "",
-        status: "",
+        status: JobStatus.APPLIED, // ✅ not ""
         appliedDate: "",
         notes: "",
       });
-    } catch {
+    } catch (err) {
+      console.error(err);
       toast.error("Failed to add job", { position: "top-center" });
     } finally {
       setSubmitting(false);
@@ -222,10 +238,9 @@ export default function JobsPage() {
                 <div className="space-y-4">
                   <Label>Status</Label>
                   <Select
-                    required
                     value={form.status}
                     onValueChange={(value) =>
-                      setForm({ ...form, status: value })
+                      setForm({ ...form, status: value as JobStatus })
                     }
                   >
                     <SelectTrigger className="bg-zinc-800 border-zinc-700">

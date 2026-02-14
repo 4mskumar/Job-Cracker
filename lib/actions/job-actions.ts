@@ -4,10 +4,16 @@ import { auth } from "@/auth";
 import { prisma } from "../prisma";
 
 import { revalidatePath } from "next/cache";
-import { Prisma } from "@prisma/client";
+import { JobStatus, Prisma } from "@prisma/client";
 
 export async function createJob(
-  data: Prisma.JobCreateInput
+  data: {
+  company: string;
+  role: string;
+  status: JobStatus;
+  appliedDate: Date;
+  notes?: string;
+}
 ) {
   try {
     const session = await auth();
