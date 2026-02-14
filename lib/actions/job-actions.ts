@@ -2,8 +2,9 @@
 
 import { auth } from "@/auth";
 import { prisma } from "../prisma";
-import { Prisma } from "../generated/prisma/client";
+
 import { revalidatePath } from "next/cache";
+import { Prisma } from "@prisma/client";
 
 export async function createJob(
   data: Prisma.JobCreateInput
