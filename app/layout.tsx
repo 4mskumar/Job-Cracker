@@ -29,6 +29,9 @@ export default async function RootLayout({
   
   return (
     <html lang="en">
+      <head>
+        <link rel='icon' href='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS-JwdyqjSG4EYcWIzrtv4H1LM9iHejIk_-Cg&s' />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} bg-zinc-900 antialiased`}
       >
