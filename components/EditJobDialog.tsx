@@ -160,6 +160,7 @@ export default function EditJobDialog({ jobId, onUpdated }: Props) {
           </div>
 
           <Button
+          disabled={submitting || deleting}
             className="w-full cursor-pointer"
             variant={"secondary"}
             onClick={handleSubmit}
@@ -171,6 +172,7 @@ export default function EditJobDialog({ jobId, onUpdated }: Props) {
             )}
           </Button>
           <Button
+          disabled={submitting || deleting}
             onClick={handleDelete}
             variant={"destructive"}
             className="w-full cursor-pointer"
