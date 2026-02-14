@@ -40,6 +40,12 @@ export default function EditJobDialog({ jobId, onUpdated }: Props) {
     async function loadJob() {
       const job = await getJobById(jobId);
 
+       if (!job) {
+      console.error("Job not found");
+      setLoading(false);
+      return;
+    }
+
       setForm({
         company: job.company,
         role: job.role,

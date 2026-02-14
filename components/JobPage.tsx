@@ -55,6 +55,13 @@ type Job = {
   notes?: string;
 };
 
+function mapJob(job: any): Job {
+  return {
+    ...job,
+    appliedDate: new Date(job.appliedDate).toISOString(),
+  };
+}
+
 export default function JobsPage() {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [allJobs, setAllJobs] = useState<Job[]>([]);
@@ -63,8 +70,6 @@ export default function JobsPage() {
   const [section, setSection] = useState("ALL");
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-
-  console.log(searchInput);
 
   const [form, setForm] = useState({
     company: "",
@@ -83,17 +88,19 @@ export default function JobsPage() {
   async function handleSubmit() {
     try {
       setSubmitting(true);
+
       const newJob = await createJob(form);
+      if (!newJob) throw new Error("Failed");
 
-      setAllJobs((prev) => [newJob, ...prev]);
+      const mappedJob = mapJob(newJob);
 
-      if (section === "ALL" || section === newJob.status) {
-        setJobs((prev) => [newJob, ...prev]);
+      setAllJobs((prev) => [mappedJob, ...prev]);
+
+      if (section === "ALL" || section === mappedJob.status) {
+        setJobs((prev) => [mappedJob, ...prev]);
       }
 
-      toast.success("New job added", {
-        position: "top-center",
-      });
+      toast.success("New job added", { position: "top-center" });
 
       setOpen(false);
       setForm({
@@ -103,10 +110,8 @@ export default function JobsPage() {
         appliedDate: "",
         notes: "",
       });
-    } catch (error) {
-      toast.error("Failed to add job", {
-        position: "top-center",
-      });
+    } catch {
+      toast.error("Failed to add job", { position: "top-center" });
     } finally {
       setSubmitting(false);
     }
@@ -164,12 +169,14 @@ export default function JobsPage() {
   useEffect(() => {
     async function loadJobs() {
       const fetchedJobs = await fetchAllJobs();
-      setAllJobs(fetchedJobs);
-      setJobs(fetchedJobs); // replace, not append
+      const mapped = fetchedJobs.map(mapJob);
+
+      setAllJobs(mapped);
+      setJobs(mapped);
     }
 
     loadJobs();
-  }, []); // only once on mount
+  }, []);
 
   return (
     <div className="min-h-[80vh] px-20 bg-zinc-900 text-white p-6">
